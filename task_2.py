@@ -8,6 +8,7 @@ import shutil
 import glob
 from zipfile import ZipFile
 import pandas as pd
+import datetime
 from collections import Counter
 
 # Expand Zip File
@@ -21,10 +22,25 @@ os.chdir('comics')
 read_csv = pd.read_csv('comics.csv')
 
 # Convert the column to a list
-date_filter = read_csv['date'].tolist()
+date = read_csv['date'].tolist()
 
-counter = Counter(date_filter)
+# Define a counter for a while loop to transform the datetime into a day of the week
+i = 1
+weekday = []
 
+# Convert the date list into a weekday list
+while i < len(date):
+    date_string = date[i]
+    date_format = "%Y-%m-%d"
+
+    # Convert the string from the CSV into datetime and transform this to a weekday
+    weekday.append(datetime.datetime.strptime(date_string, date_format).strftime('%A'))
+    i += 1
+
+# Count the number of instances of each weekday
+counter = Counter(weekday)
+
+# Print the results
 print('The numbers of comics published on the day of the week are:')
 for key, value in counter.items():
     print(key, ': ', value)
