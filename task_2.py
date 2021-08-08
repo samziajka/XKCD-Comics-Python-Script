@@ -59,8 +59,10 @@ for key, value in counter.items():
     print(key, ': ', value)
 
 # Count image files and print to terminal
+os.chdir(COMICS_DIR)
 image_counter = len(glob.glob1('', "*.png"))
 print(f'\nThere are {image_counter} images in the ZIP file.')
+os.chdir('..')
 
 # Clean up working folder
 shutil.rmtree(COMICS_DIR)
