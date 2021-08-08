@@ -4,6 +4,7 @@ XKCD Comics Downloader and Reader
 
 # Import Modules
 import json
+import sys
 import requests
 import csv
 import datetime
@@ -18,8 +19,13 @@ COMICS_DIR = 'comics'
 COMICS_ZIP = 'comics.zip'
 
 # Read the current edition of XKCD comics and store as a dictionary
-current_edition = json.loads(requests.get('http://xkcd.com/info.0.json').text)
+site_response = requests.get('http://xkcd.com/nfo.0.json')
 
+if not site_response.ok:
+    print(f'There is an issue with the connection, error {site_response.status_code}.')
+    sys.exit()
+
+current_edition = json.loads(site_response.text)
 
 # Define latest edition and set lower bound to store in CSV
 CURRENT_ID = current_edition["num"]
