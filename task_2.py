@@ -6,6 +6,8 @@ This script is to be used with a Zip file created by task_1.py
 
 # Import Modules
 import shutil
+import os
+import sys
 import glob
 from zipfile import ZipFile
 import pandas as pd
@@ -13,13 +15,25 @@ import datetime
 from collections import Counter
 
 # Define constant directories and files
+import pandas.errors
+
 COMICS_CSV = 'comics/comics.csv'
 COMICS_DIR = 'comics'
 COMICS_ZIP = 'comics.zip'
 
+# Check whether a Zip file exists
+if not os.path.exists(COMICS_ZIP):
+    print('There is no ZIP file, please add a file to this directory and re-run the script.')
+    sys.exit()
+
 # Expand Zip File
 with ZipFile(COMICS_ZIP, 'r') as zip:
     zip.extractall()
+
+# Check whether a CSV file exists
+if not os.path.exists(COMICS_CSV):
+    print('There is no CSV file, please add a file to the zip file and re-run the script.')
+    sys.exit()
 
 # Read CSV using Pandas module
 read_csv = pd.read_csv(COMICS_CSV)
