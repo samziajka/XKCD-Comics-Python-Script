@@ -5,7 +5,6 @@ This script is to be used with a Zip file created by task_1.py
 """
 
 # Import Modules
-import os
 import shutil
 import glob
 from zipfile import ZipFile
