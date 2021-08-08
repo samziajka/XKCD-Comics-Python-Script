@@ -12,76 +12,70 @@ import shutil
 from zipfile import ZipFile
 import pandas as pd
 
+# Define constant directories and files
+COMICS_CSV = 'comics/comics.csv'
+COMICS_DIR = 'comics'
+COMICS_ZIP = 'comics.zip'
+
 # Read the current edition of XKCD comics and store as a dictionary
 current_edition = json.loads(requests.get('http://xkcd.com/info.0.json').text)
 
-# Define latest edition and set range to store in CSV
-current_id = current_edition["num"]
 
-# Set the lower bound for editions to add to the CSV file
-lower_bound = current_id - 6
+# Define latest edition and set lower bound to store in CSV
+CURRENT_ID = current_edition["num"]
+lower_bound = CURRENT_ID - 6
 
 # Check whether zip file exists in script folder
-if not os.path.exists('comics.zip'):
+if not os.path.exists(COMICS_ZIP):
 
     # Check whether directory exists in script folder, and if not, creates a new working directory
-    if not os.path.exists('comics'):
-        os.mkdir('comics')
+    if not os.path.exists(COMICS_DIR):
+        os.mkdir(COMICS_DIR)
 
-    # Set working_working directory as current folder
-    os.chdir('comics')
-
-    # Check whether comics.csv currently exists in comics directory
-    if not os.path.exists('comics.csv'):
-
-        # Write and append to CSV file for the most recent 7 comics
-        with open('comics.csv', 'w', newline='') as csvfile:
+    if not os.path.exists(COMICS_CSV):
+        # If csv doesn't exist, write and append to CSV file for the most recent 7 comics
+        with open(COMICS_CSV, 'w', newline='') as csvfile:
 
             # Define and write column headers to CSV file
             csv_header = ["date", "id", "title", "url", "alt text"]
             writer = csv.writer(csvfile)
             writer.writerow(csv_header)
 
-    os.chdir('..')
-
     # Create new, updated zip file
-    with ZipFile('comics.zip', 'w') as zip:
-        for path, directories, files in os.walk('comics'):
+    with ZipFile(COMICS_ZIP, 'w') as zip:
+        for path, directories, files in os.walk(COMICS_DIR):
             for file in files:
                 file_name = os.path.join(path, file)
                 zip.write(file_name)
 
     # Clean up working folder
-    shutil.rmtree('comics')
+    shutil.rmtree(COMICS_DIR)
 
 # If comics.zip exists, expand the zip file
-with ZipFile('comics.zip', 'r') as zip:
+with ZipFile(COMICS_ZIP, 'r') as zip:
     zip.extractall()
 
 # Check whether directory exists in script folder, and if not, creates a new working directory
-if not os.path.exists('comics'):
-    os.mkdir('comics')
-
-# Navigate to Comics folder
-os.chdir('comics')
+if not os.path.exists(COMICS_DIR):
+    os.mkdir(COMICS_DIR)
 
 # Check whether comics.csv currently exists in comics directory
-if not os.path.exists('comics.csv'):
+if not os.path.exists(COMICS_CSV):
     # Write and append to CSV file for the most recent 7 comics
-    with open('comics.csv', 'w', newline='') as csvfile:
+    with open(COMICS_CSV, 'w', newline='') as csvfile:
         # Define and write column headers to CSV file
         csv_header = ["date", "id", "title", "url", "alt text"]
         writer = csv.writer(csvfile)
         writer.writerow(csv_header)
 
 # Read CSV using Pandas module and filter id column
-read_csv = pd.read_csv('comics.csv')
+read_csv = pd.read_csv(COMICS_CSV)
 
 # Convert the ID column to a list
 id_list = read_csv['id'].tolist()
 
 # Define the latest ID if there is nothing in the list
-csv_latest_id = current_id - 7
+csv_latest_id = CURRENT_ID - 7
 
 # Write to the latest ID if the list has values
 if not len(id_list) < 1:
@@ -91,10 +85,9 @@ if not len(id_list) < 1:
 append_counter = 0
 
 # Set the lower bound for the for loop if the current ID does not equal the highest ID in the list
-if csv_latest_id == current_id:
-    os.chdir('..')
+if csv_latest_id == CURRENT_ID:
     # Clean up working folder
-    shutil.rmtree('comics')
+    shutil.rmtree(COMICS_DIR)
     print("You're up to date, no new editions were added!")
 
 else:
@@ -102,7 +95,7 @@ else:
     lower_bound = csv_latest_id + 1
 
     # Write metadata to CSV file
-    for id in range(lower_bound, current_id + 1):
+    for id in range(lower_bound, CURRENT_ID + 1):
 
         append_counter += 1
 
@@ -125,7 +118,7 @@ else:
                               comic_url,
                               source_metadata['alt']]
         # Write and append to CSV file for the most recent 7 comics
-        with open('comics.csv', 'a', newline='') as csvfile:
+        with open(COMICS_CSV, 'a', newline='') as csvfile:
 
             # Write formatted metadata to CSV file
             writer = csv.writer(csvfile)
@@ -133,22 +126,21 @@ else:
 
         # Request, label and download image file
         img_file = requests.get(source_metadata['img'])
-        img_filename = f'{id}.png'
+        img_filename = f'comics/{id}.png'
 
         open(img_filename, 'wb').write(img_file.content)
 
     # Remove existing zip file
-    os.chdir('..')
-    os.remove('comics.zip')
+    os.remove(COMICS_ZIP)
 
     # Create new, updated zip file
-    with ZipFile('comics.zip', 'w') as zip:
-        for path, directories, files in os.walk('comics'):
+    with ZipFile(COMICS_ZIP, 'w') as zip:
+        for path, directories, files in os.walk(COMICS_DIR):
             for file in files:
                 file_name = os.path.join(path, file)
                 zip.write(file_name)
 
     # Clean up working folder
-    shutil.rmtree('comics')
+    shutil.rmtree(COMICS_DIR)
 
     print(f'{append_counter} editions of the comics were added to the zip file')

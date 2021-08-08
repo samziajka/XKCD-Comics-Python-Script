@@ -1,5 +1,7 @@
 """
-ZIP File Reader - Edition and Image Counter
+XKCD ZIP File Reader - Edition and Image Counter
+
+This script is to be used with a Zip file created by task_1.py
 """
 
 # Import Modules
@@ -11,31 +13,29 @@ import pandas as pd
 import datetime
 from collections import Counter
 
+# Define constant directories and files
+COMICS_CSV = 'comics/comics.csv'
+COMICS_DIR = 'comics'
+COMICS_ZIP = 'comics.zip'
+
 # Expand Zip File
-with ZipFile('comics.zip', 'r') as zip:
+with ZipFile(COMICS_ZIP, 'r') as zip:
     zip.extractall()
 
-# Navigate to Comics folder
-os.chdir('comics')
+# Read CSV using Pandas module
+read_csv = pd.read_csv(COMICS_CSV)
 
-# Read CSV using Pandas module and filter date column
-read_csv = pd.read_csv('comics.csv')
-
-# Convert the column to a list
+# Filter date column and convert the column to a list
 date = read_csv['date'].tolist()
 
-# Define a counter for a while loop to transform the datetime into a day of the week
-i = 1
 weekday = []
-
 # Convert the date list into a weekday list
-while i < len(date):
+for i in range(len(date)):
     date_string = date[i]
     date_format = "%Y-%m-%d"
 
     # Convert the string from the CSV into datetime and transform this to a weekday
     weekday.append(datetime.datetime.strptime(date_string, date_format).strftime('%A'))
-    i += 1
 
 # Count the number of instances of each weekday
 counter = Counter(weekday)
@@ -50,5 +50,4 @@ image_counter = len(glob.glob1('', "*.png"))
 print(f'\nThere are {image_counter} images in the ZIP file.')
 
 # Clean up working folder
-os.chdir('..')
-shutil.rmtree('comics')
+shutil.rmtree(COMICS_DIR)
